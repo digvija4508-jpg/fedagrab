@@ -1,6 +1,7 @@
 // Global State
 let currentScrapedData = null;
 let activeEventSource = null;
+let activeAbortController = null;
 let downloadQueue = [];
 let queueIsRunning = false;
 let currentQueueIndex = 0;
@@ -86,11 +87,21 @@ function initGlobalProgress() {
     const btnCancel = document.getElementById('btn-cancel-dl');
     
     btnCancel.addEventListener('click', () => {
+        let wasCancelled = false;
         if (activeEventSource) {
             activeEventSource.close();
             activeEventSource = null;
             addLogLine('[System] Download cancelled by user.');
-            
+            wasCancelled = true;
+        }
+        if (activeAbortController) {
+            activeAbortController.abort();
+            activeAbortController = null;
+            addLogLine('[System] Client-side download aborted by user.');
+            wasCancelled = true;
+        }
+        
+        if (wasCancelled) {
             if (downloadQueue.length > 0 && queueIsRunning) {
                 // If in a bulk download queue, cancel queue
                 downloadQueue = [];
@@ -105,7 +116,147 @@ function initGlobalProgress() {
     });
 }
 
+async function downloadFileClientSide(url, ext, filename) {
+    const modal = document.getElementById('progress-modal');
+    const barFill = document.getElementById('progress-bar-fill');
+    const txtFilename = document.getElementById('progress-filename');
+    const txtStatus = document.getElementById('progress-status-text');
+    const statPercent = document.getElementById('stat-percent');
+    const statSpeed = document.getElementById('stat-speed');
+    const statEta = document.getElementById('stat-eta');
+    const statSize = document.getElementById('stat-size');
+    const consoleLogs = document.getElementById('console-logs');
+
+    // Reset progress UI
+    modal.classList.remove('hidden');
+    barFill.style.width = '0%';
+    txtFilename.textContent = filename || 'Resolving direct file...';
+    txtStatus.textContent = 'Connecting client-side...';
+    statPercent.textContent = '0.0%';
+    statSpeed.textContent = '0.0 MB/s';
+    statEta.textContent = '00:00';
+    statSize.textContent = '0 MB / 0 MB';
+    consoleLogs.textContent = '[Client-side] Initializing direct download stream...\n';
+
+    if (activeAbortController) activeAbortController.abort();
+    activeAbortController = new AbortController();
+
+    try {
+        const response = await fetch(url, { 
+            mode: 'cors',
+            signal: activeAbortController.signal
+        });
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const contentType = response.headers.get('content-type') || '';
+        // If it's a playlist or html, fall back
+        if (contentType.includes('html') || contentType.includes('mpegurl') || url.includes('.m3u8') || url.includes('.mpd')) {
+            throw new Error('Not a direct media file');
+        }
+
+        const contentLength = response.headers.get('content-length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+        
+        if (total === 0) {
+            throw new Error('Unknown size or empty content');
+        }
+
+        consoleLogs.textContent += `[Client-side] Direct stream access granted. Size: ${(total / (1024 * 1024)).toFixed(2)} MB\n`;
+        
+        const reader = response.body.getReader();
+        let receivedLength = 0;
+        const chunks = [];
+        const startTime = Date.now();
+
+        while(true) {
+            const {done, value} = await reader.read();
+            if (done) break;
+            
+            chunks.push(value);
+            receivedLength += value.length;
+            
+            const percent = ((receivedLength / total) * 100).toFixed(1);
+            barFill.style.width = `${percent}%`;
+            statPercent.textContent = `${percent}%`;
+            
+            const elapsed = (Date.now() - startTime) / 1000;
+            const speedBytes = receivedLength / (elapsed || 1);
+            const speed = speedBytes > 1024 * 1024 
+                ? `${(speedBytes / (1024 * 1024)).toFixed(2)} MB/s` 
+                : `${(speedBytes / 1024).toFixed(2)} KB/s`;
+            
+            const etaSecs = speedBytes > 0 ? Math.round((total - receivedLength) / speedBytes) : -1;
+            const eta = etaSecs >= 0 ? `${Math.floor(etaSecs / 60)}m ${etaSecs % 60}s` : 'Unknown';
+            
+            statSpeed.textContent = speed;
+            statEta.textContent = eta;
+            statSize.textContent = `${(receivedLength / (1024 * 1024)).toFixed(1)} MB / ${(total / (1024 * 1024)).toFixed(1)} MB`;
+            txtStatus.textContent = `Downloading directly (${percent}%)`;
+        }
+
+        txtStatus.textContent = 'Saving file...';
+        const blob = new Blob(chunks);
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const triggerLink = document.createElement('a');
+        triggerLink.href = blobUrl;
+        const cleanExt = ext || 'mp4';
+        const finalName = filename ? (filename.endsWith(`.${cleanExt}`) ? filename : `${filename}.${cleanExt}`) : `video_${Date.now()}.${cleanExt}`;
+        triggerLink.download = finalName;
+        document.body.appendChild(triggerLink);
+        triggerLink.click();
+        document.body.removeChild(triggerLink);
+        URL.revokeObjectURL(blobUrl);
+
+        txtStatus.textContent = 'Download Complete!';
+        barFill.style.width = '100%';
+        statPercent.textContent = '100%';
+        consoleLogs.textContent += '[Client-side] Download completed successfully.\n';
+
+        activeAbortController = null;
+        saveToHistory(filename || 'Downloaded File', url, 'video', url);
+
+        // Check queue
+        if (queueIsRunning && downloadQueue.length > 0) {
+            processNextQueueItem();
+        } else {
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 2000);
+        }
+
+        return true;
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            consoleLogs.textContent += `[Client-side] Download cancelled.\n`;
+            return true; // Don't trigger fallback if aborted by user
+        }
+        consoleLogs.textContent += `[Warning] Direct client download failed: ${err.message}. Falling back to server-side pipeline...\n`;
+        activeAbortController = null;
+        return false;
+    }
+}
+
 function startDownload(url, type, formatId = '', ext = '', filename = '', customReferer = '') {
+    // If it's a direct media URL (not m3u8/mpd), try client-side download first
+    const isDirectMedia = url.startsWith('http') && 
+                          !url.includes('.m3u8') && 
+                          !url.includes('.mpd') && 
+                          (url.includes('.mp4') || url.includes('.mp3') || url.includes('.m4a') || url.includes('.webm') || type === 'image');
+
+    if (isDirectMedia) {
+        downloadFileClientSide(url, ext, filename).then(success => {
+            if (!success) {
+                executeServerSideDownload(url, type, formatId, ext, filename, customReferer);
+            }
+        });
+    } else {
+        executeServerSideDownload(url, type, formatId, ext, filename, customReferer);
+    }
+}
+
+function executeServerSideDownload(url, type, formatId = '', ext = '', filename = '', customReferer = '') {
     const modal = document.getElementById('progress-modal');
     const barFill = document.getElementById('progress-bar-fill');
     const txtFilename = document.getElementById('progress-filename');
@@ -126,7 +277,7 @@ function startDownload(url, type, formatId = '', ext = '', filename = '', custom
     statSpeed.textContent = '0.0 MB/s';
     statEta.textContent = '00:00';
     statSize.textContent = '0 MB / 0 MB';
-    consoleLogs.textContent = '[System] Initializing download stream...\n';
+    consoleLogs.textContent = '[System] Initializing server-side download stream...\n';
 
     // Extract headers bypass if present
     const referer = customReferer || document.getElementById('dl-referer')?.value.trim() || '';
