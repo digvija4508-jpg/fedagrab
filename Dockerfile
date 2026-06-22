@@ -1,11 +1,12 @@
 # Use a lightweight Debian-based Node.js image
 FROM node:20-slim
 
-# Install system dependencies (ffmpeg, python3, curl, and Chromium dependencies)
+# Install system dependencies (ffmpeg, python3, curl, ca-certificates, and Chromium dependencies)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     python3 \
     curl \
+    ca-certificates \
     chromium \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
