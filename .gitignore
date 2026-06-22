@@ -1,0 +1,4 @@
+node_modules/
+temp_downloads/
+.DS_Store
+*.log

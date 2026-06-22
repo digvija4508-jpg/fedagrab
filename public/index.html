@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FedaGrab - Ultimate Video Downloader & Scraper</title>
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for beautiful modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Video -->
+    <div class="bg-video-container">
+        <video autoplay loop muted playsinline class="bg-video">
+            <source src="bg.mp4" type="video/mp4">
+        </video>
+        <div class="bg-video-overlay"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-cloud-arrow-down logo-icon"></i>
+                <span class="logo-text">Feda<span>Grab</span></span>
+            </div>
+            <nav class="nav-links">
+                <a href="#downloader" class="nav-item active" data-tab="downloader">
+                    <i class="fa-solid fa-circle-play"></i>
+                    <span>Downloader</span>
+                </a>
+                <a href="#scraper" class="nav-item" data-tab="scraper">
+                    <i class="fa-solid fa-spider"></i>
+                    <span>Web Scraper</span>
+                </a>
+                <a href="#ai-assistant" class="nav-item" data-tab="ai-assistant">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="#history" class="nav-item" data-tab="history">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>History</span>
+                </a>
+                <a href="#settings" class="nav-item" data-tab="settings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.0.0</span>
+                <span class="status-indicator online">System Ready</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- TAB 1: DIRECT VIDEO DOWNLOADER -->
+            <section id="downloader" class="tab-pane active">
+                <header class="tab-header">
+                    <h1>Video Downloader</h1>
+                    <p>Paste a link from YouTube, Reels, Shorts, TikTok, Facebook, Twitter, and hundreds more.</p>
+                </header>
+
+                <div class="search-box-container">
+                    <div class="search-box">
+                        <i class="fa-solid fa-link input-icon"></i>
+                        <input type="text" id="dl-url" placeholder="Paste video URL or .m3u8 stream link here..." autocomplete="off">
+                        <button id="dl-analyze-btn" class="btn btn-primary">
+                            <span>Analyze URL</span>
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <div class="supported-badges">
+                        <span class="badge"><i class="fa-brands fa-youtube red"></i> YouTube / Shorts</span>
+                        <span class="badge"><i class="fa-brands fa-instagram purple"></i> Reels</span>
+                        <span class="badge"><i class="fa-brands fa-tiktok black"></i> TikTok</span>
+                        <span class="badge"><i class="fa-brands fa-facebook blue"></i> Facebook</span>
+                        <span class="badge"><i class="fa-brands fa-twitter cyan"></i> Twitter/X</span>
+                        <span class="badge"><i class="fa-solid fa-video orange"></i> Generic Stream (.m3u8)</span>
+                    </div>
+
+                    <!-- Advanced Options Dropdown -->
+                    <details class="advanced-details">
+                        <summary><i class="fa-solid fa-gears"></i> Advanced Download Options (Headers Bypass)</summary>
+                        <div class="advanced-grid">
+                            <div class="form-group">
+                                <label for="dl-referer">Custom Referer URL</label>
+                                <input type="text" id="dl-referer" placeholder="e.g., https://www.miruro.to/" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="dl-ua">Custom User-Agent</label>
+                                <input type="text" id="dl-ua" placeholder="e.g., Mozilla/5.0 (Windows NT 10.0; Win64; x64)..." autocomplete="off">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Loading State -->
+                <div id="dl-loading" class="loader-container hidden">
+                    <div class="glow-spinner"></div>
+                    <p>Fetching video metadata from source...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="dl-error" class="error-container hidden">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div class="error-text">
+                        <h3>Analysis Failed</h3>
+                        <p id="dl-error-message">Could not fetch video information.</p>
+                    </div>
+                </div>
+
+                <!-- Bookmarklet & Universal Bypass Help Card -->
+                <div class="universal-help-card">
+                    <div class="help-header">
+                        <i class="fa-solid fa-circle-question"></i>
+                        <h3>Failed to download? Grab from ANY website!</h3>
+                    </div>
+                    <p>Protected sites (like anime streaming portals) use anti-bot blockades. You can easily download from <strong>100% of websites</strong> using one of these two methods:</p>
+                    
+                    <div class="help-tabs-nav">
+                        <button class="help-tab-nav-btn active" data-helptab="help-bookmarklet">Method 1: Browser Bookmarklet</button>
+                        <button class="help-tab-nav-btn" data-helptab="help-devtools">Method 2 (Universal): Copy Stream Link</button>
+                    </div>
+
+                    <div class="help-tabs-content">
+                        <!-- Method 1: Bookmarklet -->
+                        <div id="help-bookmarklet" class="help-tab-pane active">
+                            <div class="bookmarklet-steps">
+                                <div class="step-item">
+                                    <span class="step-num">1</span>
+                                    <div class="step-content">
+                                        <strong>Install Bookmarklet:</strong> Drag this button to your browser's Bookmarks Bar:
+                                        <a href="javascript:(function(){const v=Array.from(document.querySelectorAll('video,source')).map(e=>e.src||e.currentSrc).filter(Boolean);const f=Array.from(document.querySelectorAll('iframe')).map(e=>e.src).filter(Boolean);const h=document.documentElement.outerHTML;const m=h.match(/https?:\/\/[^\s&quot;'`&lt;&gt;]+?\.m3u8[^\s&quot;'`&lt;&gt;]*/gi)||[];const p=h.match(/https?:\/\/[^\s&quot;'`&lt;&gt;]+?\.mp4[^\s&quot;'`&lt;&gt;]*/gi)||[];const s=[...v,...m,...p];const u=[...new Set(s)];let t=u.length>0?u[0]:(f.length>0?f[0]:'');if(!t){alert('No stream or iframe player detected. Try playing the video first.');return;}window.open('http://localhost:3000/#downloader?url='+encodeURIComponent(t)+'&title='+encodeURIComponent(document.title),'_blank');})()" class="bookmarklet-btn" title="Drag me to your Bookmarks Bar"><i class="fa-solid fa-wand-magic-sparkles"></i> FedaGrab Streamer</a>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">2</span>
+                                    <div class="step-content">
+                                        <strong>Play Video:</strong> Visit the video or anime site and start playing the video inside the player.
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">3</span>
+                                    <div class="step-content">
+                                        <strong>Grab Stream:</strong> Click the <strong>FedaGrab Streamer</strong> bookmark in your bookmarks bar. It will automatically capture the stream and open it here for downloading!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Method 2: Developer Tools -->
+                        <div id="help-devtools" class="help-tab-pane">
+                            <div class="bookmarklet-steps">
+                                <div class="step-item">
+                                    <span class="step-num">1</span>
+                                    <div class="step-content">
+                                        <strong>Open DevTools:</strong> Go to the video/anime page, right-click, and choose <strong>Inspect</strong> (or press <strong>F12</strong>).
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">2</span>
+                                    <div class="step-content">
+                                        <strong>Filter Network:</strong> Click the <strong>Network</strong> tab. In the Filter box, type <strong>m3u8</strong> (or <strong>mp4</strong>).
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">3</span>
+                                    <div class="step-content">
+                                        <strong>Copy URL:</strong> Play the video. Right-click the `.m3u8` request that appears in the log, and choose <strong>Copy</strong> -> <strong>Copy link address</strong>.
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">4</span>
+                                    <div class="step-content">
+                                        <strong>Download:</strong> Paste that link above in FedaGrab, expand the <em>Advanced Download Options</em> panel, fill in the website's main page URL as the <strong>Referer</strong> (e.g. <code>https://www.miruro.to/</code>), and click <strong>Analyze URL</strong>!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Metadata Card (Visible after analysis) -->
+                <div id="dl-result" class="metadata-card hidden">
+                    <div class="metadata-grid">
+                        <div class="video-preview">
+                            <img id="meta-thumb" src="" alt="Thumbnail">
+                            <span id="meta-duration" class="duration-tag">0:00</span>
+                        </div>
+                        <div class="video-details">
+                            <span id="meta-platform" class="platform-tag">YouTube</span>
+                            <h2 id="meta-title">Video Title</h2>
+                            <p class="uploader-info">By <span id="meta-uploader" class="highlight">Uploader</span></p>
+                            
+                            <div class="tab-subnav">
+                                <button class="subtab-btn active" data-subtab="vid-hq">High Quality Video</button>
+                                <button class="subtab-btn" data-subtab="vid-sd">Standard Video</button>
+                                <button class="subtab-btn" data-subtab="aud-only">Audio Only</button>
+                            </div>
+
+                            <!-- High Quality Video Options (Needs merging) -->
+                            <div id="vid-hq" class="formats-list subtab-pane active">
+                                <div class="info-alert">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span>High Quality 1080p+ options download separate video & audio streams, merging them using FFmpeg on the fly.</span>
+                                </div>
+                                <div class="formats-grid" id="hq-formats-container">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+
+                            <!-- Standard Video Options (Pre-merged, fast download) -->
+                            <div id="vid-sd" class="formats-list subtab-pane">
+                                <div class="formats-grid" id="sd-formats-container">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+
+                            <!-- Audio Only Options -->
+                            <div id="aud-only" class="formats-list subtab-pane">
+                                <div class="formats-grid" id="audio-formats-container">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: GENERAL WEBSITE SCRAPER -->
+            <section id="scraper" class="tab-pane">
+                <header class="tab-header">
+                    <h1>Web Scraper & Crawler</h1>
+                    <p>Scrape any website (blogs, anime pages, galleries, forums) to extract images, videos, audio, and documents.</p>
+                </header>
+
+                <div class="search-box-container">
+                    <div class="search-box">
+                        <i class="fa-solid fa-spider input-icon"></i>
+                        <input type="text" id="scrape-url" placeholder="Paste website URL here (e.g. https://example.com)..." autocomplete="off">
+                        <button id="scrape-btn" class="btn btn-secondary">
+                            <span>Scrape Site</span>
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="scrape-loading" class="loader-container hidden">
+                    <div class="glow-spinner secondary"></div>
+                    <p>Crawling HTML and extracting file endpoints...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="scrape-error" class="error-container hidden">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div class="error-text">
+                        <h3>Scrape Failed</h3>
+                        <p id="scrape-error-message">Could not load the requested webpage.</p>
+                    </div>
+                </div>
+
+                <!-- Scraper Results Container -->
+                <div id="scrape-results" class="scraper-results-card hidden">
+                    <h2 id="scraped-site-title">Website Title</h2>
+                    <p class="scraped-url-info">Scraped from: <a href="" id="scraped-site-url" target="_blank" class="highlight">URL</a></p>
+
+                    <!-- Scraped Categories Tabs -->
+                    <div class="scraper-tabs">
+                        <button class="scraper-tab-btn active" data-scratab="scr-images">
+                            <i class="fa-solid fa-image"></i> Images (<span id="count-images">0</span>)
+                        </button>
+                        <button class="scraper-tab-btn" data-scratab="scr-videos">
+                            <i class="fa-solid fa-video"></i> Videos (<span id="count-videos">0</span>)
+                        </button>
+                        <button class="scraper-tab-btn" data-scratab="scr-audios">
+                            <i class="fa-solid fa-music"></i> Audio (<span id="count-audios">0</span>)
+                        </button>
+                        <button class="scraper-tab-btn" data-scratab="scr-docs">
+                            <i class="fa-solid fa-file-invoice"></i> Documents (<span id="count-docs">0</span>)
+                        </button>
+                        <button class="scraper-tab-btn" data-scratab="scr-links">
+                            <i class="fa-solid fa-link"></i> Web Links (<span id="count-links">0</span>)
+                        </button>
+                    </div>
+
+                    <!-- Filter / Bulk Download Toolbar -->
+                    <div class="scraper-toolbar">
+                        <div class="search-filter">
+                            <i class="fa-solid fa-filter"></i>
+                            <input type="text" id="scraper-search-filter" placeholder="Filter elements by title or extension...">
+                        </div>
+                        <div class="toolbar-actions">
+                            <button id="scr-select-all" class="btn-text"><i class="fa-regular fa-square-check"></i> Select All</button>
+                            <button id="scr-deselect-all" class="btn-text"><i class="fa-regular fa-square"></i> Deselect All</button>
+                            <button id="scr-bulk-dl" class="btn btn-primary btn-sm"><i class="fa-solid fa-download"></i> Download Selected</button>
+                        </div>
+                    </div>
+
+                    <!-- Category Content Panes -->
+                    <div class="scraper-panes">
+                        
+                        <!-- Images Pane (Grid Gallery Layout) -->
+                        <div id="scr-images" class="scraper-tab-pane active">
+                            <div class="gallery-grid" id="gallery-container">
+                                <!-- Dynamic Images -->
+                            </div>
+                        </div>
+
+                        <!-- Videos Pane -->
+                        <div id="scr-videos" class="scraper-tab-pane">
+                            <div class="assets-list" id="videos-container">
+                                <!-- Dynamic Videos -->
+                            </div>
+                        </div>
+
+                        <!-- Audios Pane -->
+                        <div id="scr-audios" class="scraper-tab-pane">
+                            <div class="assets-list" id="audios-container">
+                                <!-- Dynamic Audios -->
+                            </div>
+                        </div>
+
+                        <!-- Documents Pane -->
+                        <div id="scr-docs" class="scraper-tab-pane">
+                            <div class="assets-list" id="docs-container">
+                                <!-- Dynamic Documents -->
+                            </div>
+                        </div>
+
+                        <!-- Web Links Pane -->
+                        <div id="scr-links" class="scraper-tab-pane">
+                            <div class="assets-list" id="links-container">
+                                <!-- Dynamic Links -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: AI ASSISTANT (OLLAMA INTEGRATION) -->
+            <section id="ai-assistant" class="tab-pane">
+                <header class="tab-header">
+                    <h1>AI Assistant</h1>
+                    <p>Integrate a local Ollama model to help you inspect, analyze, and select links from scraped sites using natural language commands.</p>
+                </header>
+
+                <div class="ai-config-card">
+                    <div class="ai-header">
+                        <i class="fa-solid fa-brain ai-brain-icon"></i>
+                        <div>
+                            <h2>Ollama Connection Setup</h2>
+                            <p>Connect to your local Ollama daemon (usually running on port 11434).</p>
+                        </div>
+                        <span class="status-pill offline" id="ollama-status">Checking Connection...</span>
+                    </div>
+
+                    <div class="ai-form">
+                        <div class="form-group">
+                            <label for="ollama-model">Ollama Model</label>
+                            <div class="model-select-wrapper">
+                                <input type="text" id="ollama-model" value="gemma" placeholder="Enter model name (e.g. gemma, gemma2, llama3)...">
+                                <button id="btn-check-ollama" class="btn btn-secondary btn-sm">Check Connection</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-interaction-card card-disabled" id="ai-interaction-container">
+                    <div class="disabled-overlay">
+                        <p><i class="fa-solid fa-lock"></i> Please scrape a website first to use the AI Selector.</p>
+                    </div>
+                    <h2>Smart Link Selector</h2>
+                    <p>Ask the AI to filter, check, and select the media items currently scraped from the website.</p>
+                    
+                    <div class="ai-chat-area">
+                        <div class="ai-chat-prompt">
+                            <textarea id="ai-user-prompt" placeholder="Example: 'Select all images that are in PNG format and contain the word background' OR 'Find the main video file links'..." rows="3"></textarea>
+                            <button id="btn-run-ai" class="btn btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Run AI Filter</button>
+                        </div>
+                    </div>
+
+                    <div id="ai-response-status" class="ai-status hidden">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span>Ollama model "gemma" is analyzing webpage assets...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: DOWNLOAD HISTORY -->
+            <section id="history" class="tab-pane">
+                <header class="tab-header">
+                    <h1>Download History</h1>
+                    <p>Review files you've grabbed recently. (Files are saved in your browser's default downloads location).</p>
+                </header>
+
+                <div class="history-controls">
+                    <button id="btn-clear-history" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash-can"></i> Clear History</button>
+                </div>
+
+                <div class="history-list" id="history-container">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>No downloads yet. Paste a link or scrape a page to get started!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: SETTINGS -->
+            <section id="settings" class="tab-pane">
+                <header class="tab-header">
+                    <h1>Settings & Operations</h1>
+                    <p>Manage application dependencies and system tools.</p>
+                </header>
+
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h2>yt-dlp Core Updater</h2>
+                        <p>Website scrapers change regularly. If downloads start failing, update the underlying `yt-dlp` executable.</p>
+                        <button id="btn-update-ytdlp" class="btn btn-primary">
+                            <span>Update yt-dlp Executable</span>
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        </button>
+                        <div id="update-status" class="update-log hidden">
+                            <pre id="update-log-text">Running update command...</pre>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h2>System Dependencies</h2>
+                        <div class="dependency-check">
+                            <div class="dep-item">
+                                <span class="dep-name">yt-dlp</span>
+                                <span class="badge badge-success"><i class="fa-solid fa-check"></i> Installed</span>
+                            </div>
+                            <div class="dep-item">
+                                <span class="dep-name">FFmpeg</span>
+                                <span class="badge badge-success"><i class="fa-solid fa-check"></i> Installed</span>
+                            </div>
+                            <div class="dep-item">
+                                <span class="dep-name">NodeJS</span>
+                                <span class="badge badge-success"><i class="fa-solid fa-check"></i> Installed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- GLOBAL DOWNLOAD PROGRESS OVERLAY -->
+    <div id="progress-modal" class="progress-modal-container hidden">
+        <div class="progress-card">
+            <div class="progress-card-header">
+                <div class="dl-icon-badge"><i class="fa-solid fa-download"></i></div>
+                <div class="title-section">
+                    <h3 id="progress-filename">File Name</h3>
+                    <p id="progress-status-text">Starting download...</p>
+                </div>
+                <button id="btn-cancel-dl" class="btn-circle" title="Cancel Download"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="progress-body">
+                <!-- Circular/Horizontal Glow Bar -->
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+                
+                <div class="progress-stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">Progress</span>
+                        <span class="stat-val" id="stat-percent">0.0%</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Speed</span>
+                        <span class="stat-val" id="stat-speed">0.0 MB/s</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">ETA</span>
+                        <span class="stat-val" id="stat-eta">00:00</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Size</span>
+                        <span class="stat-val" id="stat-size">0 MB / 0 MB</span>
+                    </div>
+                </div>
+
+                <!-- Collapsible Terminal Console -->
+                <details class="console-details">
+                    <summary>Show Console Log output <i class="fa-solid fa-chevron-down"></i></summary>
+                    <div class="console-output">
+                        <pre id="console-logs">[System] Initializing download pipe...</pre>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
