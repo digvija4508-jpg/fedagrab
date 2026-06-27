@@ -36,7 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalProgress();
     init3dTilt();
     checkHashParams();
+    setupBookmarklet();
 });
+
+function setupBookmarklet() {
+    const bookmarkletLink = document.getElementById('bookmarklet-btn');
+    if (bookmarkletLink) {
+        const origin = window.location.origin;
+        const code = `javascript:(function(){const v=Array.from(document.querySelectorAll('video,source')).map(e=>e.src||e.currentSrc).filter(Boolean);const f=Array.from(document.querySelectorAll('iframe')).map(e=>e.src).filter(Boolean);const h=document.documentElement.outerHTML;const m=h.match(/https?:\\/\\/[^\\s"'\`<>\u0026]+?\\.m3u8[^\\s"'\`<>\u0026]*/gi)||[];const p=h.match(/https?:\\/\\/[^\\s"'\`<>\u0026]+?\\.mp4[^\\s"'\`<>\u0026]*/gi)||[];const s=[...v,...m,...p];const u=[...new Set(s)];let t=u.length>0?u[0]:(f.length>0?f[0]:'');if(!t){alert('No stream or iframe player detected. Try playing the video first.');return;}window.open('${origin}/#downloader?url='+encodeURIComponent(t)+'\u0026title='+encodeURIComponent(document.title),'_blank');})()`;
+        bookmarkletLink.setAttribute('href', code);
+    }
+}
 
 // Watch for incoming bookmarklet parameters on hash changes
 window.addEventListener('hashchange', checkHashParams);

@@ -147,7 +147,7 @@
                                     <span class="step-num">1</span>
                                     <div class="step-content">
                                         <strong>Install Bookmarklet:</strong> Drag this button to your browser's Bookmarks Bar:
-                                        <a href="javascript:(function(){const v=Array.from(document.querySelectorAll('video,source')).map(e=>e.src||e.currentSrc).filter(Boolean);const f=Array.from(document.querySelectorAll('iframe')).map(e=>e.src).filter(Boolean);const h=document.documentElement.outerHTML;const m=h.match(/https?:\/\/[^\s&quot;'`&lt;&gt;]+?\.m3u8[^\s&quot;'`&lt;&gt;]*/gi)||[];const p=h.match(/https?:\/\/[^\s&quot;'`&lt;&gt;]+?\.mp4[^\s&quot;'`&lt;&gt;]*/gi)||[];const s=[...v,...m,...p];const u=[...new Set(s)];let t=u.length>0?u[0]:(f.length>0?f[0]:'');if(!t){alert('No stream or iframe player detected. Try playing the video first.');return;}window.open('http://localhost:3000/#downloader?url='+encodeURIComponent(t)+'&title='+encodeURIComponent(document.title),'_blank');})()" class="bookmarklet-btn" title="Drag me to your Bookmarks Bar"><i class="fa-solid fa-wand-magic-sparkles"></i> FedaGrab Streamer</a>
+                                        <a id="bookmarklet-btn" href="#" class="bookmarklet-btn" title="Drag me to your Bookmarks Bar"><i class="fa-solid fa-wand-magic-sparkles"></i> FedaGrab Streamer</a>
                                     </div>
                                 </div>
                                 <div class="step-item">
