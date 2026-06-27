@@ -1562,3 +1562,43 @@ body {
 .help-tab-pane.active {
     display: block;
 }
+
+/* Quick Download Button Styles */
+.quick-download-area {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.quick-dl-btn {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #0b0f19 !important;
+    border: none;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-dl-btn i {
+    font-size: 17px;
+}
+
+.quick-dl-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(79, 172, 254, 0.7);
+    filter: brightness(1.1);
+}
+
+.quick-dl-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
+}

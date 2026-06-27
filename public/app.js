@@ -485,6 +485,34 @@ function renderVideoDetails(data) {
     uploader.textContent = data.uploader;
     platform.textContent = data.extractor;
 
+    // Set up Quick Download Button
+    const btnQuickDownload = document.getElementById('btn-quick-download');
+    
+    // Choose the best formats for Quick Download
+    let quickUrl = data.webpage_url;
+    let quickType = 'video';
+    let quickFormat = 'bestvideo+bestaudio/best';
+    let quickExt = 'mp4';
+    let quickReferer = data.referer || '';
+    
+    if (data.extractor === 'Headless Sniffer' || data.extractor === 'Generic') {
+        // If it's a direct stream sniffed, download the direct URL
+        const bestFormat = data.formats && data.formats.length > 0 ? data.formats[0] : null;
+        if (bestFormat) {
+            quickUrl = bestFormat.url || data.webpage_url;
+            quickFormat = bestFormat.format_id || 'best';
+            quickExt = bestFormat.ext || 'mp4';
+        }
+    }
+    
+    // Set event listener (clear previous first)
+    const newBtnQuickDownload = btnQuickDownload.cloneNode(true);
+    btnQuickDownload.parentNode.replaceChild(newBtnQuickDownload, btnQuickDownload);
+    
+    newBtnQuickDownload.addEventListener('click', () => {
+        startDownload(quickUrl, quickType, quickFormat, quickExt, data.title, quickReferer);
+    });
+
     // Render format containers
     const hqContainer = document.getElementById('hq-formats-container');
     const sdContainer = document.getElementById('sd-formats-container');
