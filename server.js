@@ -420,7 +420,7 @@ function returnDummyStreamInfo(res, originalUrl, streamUrl, referer, pageTitle) 
  * Description: Fetches media metadata from yt-dlp, falling back to headless sniffer if unsupported
  */
 app.get('/api/info', (req, res) => {
-    const { url, referer, userAgent } = req.query;
+    const { url, referer, userAgent, cookiesFromBrowser } = req.query;
     if (!url) {
         return res.status(400).json({ error: 'URL parameter is required' });
     }
@@ -428,6 +428,7 @@ app.get('/api/info', (req, res) => {
     const args = ['-J', '--flat-playlist'];
     if (referer) args.push('--referer', referer);
     if (userAgent) args.push('--user-agent', userAgent);
+    if (cookiesFromBrowser) args.push('--cookies-from-browser', cookiesFromBrowser);
     args.push(url);
 
     // Spawn yt-dlp to get JSON representation of video
@@ -471,6 +472,7 @@ app.get('/api/info', (req, res) => {
                         // Try to query yt-dlp on the direct stream URL
                         const streamArgs = ['-J', '--flat-playlist'];
                         if (refererDomain) streamArgs.push('--referer', refererDomain);
+                        if (cookiesFromBrowser) streamArgs.push('--cookies-from-browser', cookiesFromBrowser);
                         streamArgs.push(streamUrl);
 
                         console.log(`Spawning yt-dlp to inspect direct stream: ${streamUrl}`);
@@ -685,7 +687,7 @@ app.get('/api/scrape', async (req, res) => {
  * Description: Server-Sent Events (SSE) endpoint to run download and stream progress updates
  */
 app.get('/api/download-stream', (req, res) => {
-    const { url, type, formatId, ext, filename, referer, userAgent } = req.query;
+    const { url, type, formatId, ext, filename, referer, userAgent, cookiesFromBrowser } = req.query;
 
     if (!url) {
         return res.status(400).json({ error: 'URL parameter is required' });
@@ -814,6 +816,7 @@ app.get('/api/download-stream', (req, res) => {
 
         if (referer) args.push('--referer', referer);
         if (userAgent) args.push('--user-agent', userAgent);
+        if (cookiesFromBrowser) args.push('--cookies-from-browser', cookiesFromBrowser);
 
         args.push(url);
 

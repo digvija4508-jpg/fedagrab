@@ -282,6 +282,7 @@ function executeServerSideDownload(url, type, formatId = '', ext = '', filename 
     // Extract headers bypass if present
     const referer = customReferer || document.getElementById('dl-referer')?.value.trim() || '';
     const userAgent = document.getElementById('dl-ua')?.value.trim() || '';
+    const cookiesFromBrowser = document.getElementById('dl-cookies')?.value || '';
 
     // Format target API url
     const queryParams = new URLSearchParams({
@@ -294,6 +295,7 @@ function executeServerSideDownload(url, type, formatId = '', ext = '', filename 
 
     if (referer) queryParams.append('referer', referer);
     if (userAgent) queryParams.append('userAgent', userAgent);
+    if (cookiesFromBrowser) queryParams.append('cookiesFromBrowser', cookiesFromBrowser);
     
     // Create Event Source
     if (activeEventSource) activeEventSource.close();
@@ -441,6 +443,7 @@ function initVideoDownloader() {
 
         const referer = document.getElementById('dl-referer').value.trim();
         const userAgent = document.getElementById('dl-ua').value.trim();
+        const cookiesFromBrowser = document.getElementById('dl-cookies').value;
 
         // Reset states
         loading.classList.remove('hidden');
@@ -450,6 +453,7 @@ function initVideoDownloader() {
         const queryParams = new URLSearchParams({ url });
         if (referer) queryParams.append('referer', referer);
         if (userAgent) queryParams.append('userAgent', userAgent);
+        if (cookiesFromBrowser) queryParams.append('cookiesFromBrowser', cookiesFromBrowser);
 
         fetch(`/api/info?${queryParams.toString()}`)
             .then(res => {

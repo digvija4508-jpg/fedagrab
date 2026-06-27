@@ -1508,7 +1508,8 @@ body {
     animation: fadeIn 0.3s ease-out;
 }
 
-.advanced-grid .form-group input {
+.advanced-grid .form-group input,
+.advanced-grid .form-group select {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--glass-border);
     border-radius: 6px;
@@ -1519,7 +1520,13 @@ body {
     width: 100%;
 }
 
-.advanced-grid .form-group input:focus {
+.advanced-grid .form-group select option {
+    background: #0b0f19;
+    color: var(--text-primary);
+}
+
+.advanced-grid .form-group input:focus,
+.advanced-grid .form-group select:focus {
     border-color: var(--accent-cyan);
 }
 
